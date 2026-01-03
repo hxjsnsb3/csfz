@@ -1,0 +1,572 @@
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/ChinaQY/-/Main/UI"))()
+
+if game.Players.LocalPlayer.Name == "roblox" then
+    game.Players.LocalPlayer:Kick("活着要干嘛😂")
+else
+
+OrionLib:MakeNotification({
+    Name = "脚本中心",
+    Content = "脚本启动中🥵🥵🥵",
+    Time = 2.5 })
+
+local Sound = Instance.new("Sound")
+    Sound.SoundId = "rbxassetid://4590662766"
+    Sound.Parent = game:GetService("SoundService")
+    Sound.Volume = 5
+    Sound:Play()
+    Sound.Ended:Wait()
+    Sound:Destroy()
+
+local Window = OrionLib:MakeWindow({Name = "冷风脚本中心", HidePremium = false, SaveConfig = false, IntroText = "冷风脚本中心", ConfigFolder = "冷风脚本中心"})
+
+local Tab = Window:MakeTab({
+    Name = "公告",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddParagraph("作者","钢化膜")
+Tab:AddLabel("此脚本为缝合")
+Tab:AddLabel("此脚本完全免费禁止倒卖")
+Tab:AddLabel("QQ群 : not")
+Tab:AddLabel("DC群组 : not")
+Tab:AddLabel("更新公告:没有")
+Tab:AddButton({
+    Name = "放一个神秘音乐",
+    Callback = function()
+    local Sound = Instance.new("Sound")
+    Sound.SoundId = "rbxassetid://1843531626"
+    Sound.Parent = game:GetService("SoundService")
+    Sound.Volume = 10
+    Sound:Play()
+    Sound.Ended:Wait()
+    Sound:Destroy()
+end})
+local Tab = Window:MakeTab({
+    Name = "作者",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddLabel("QQ : not")
+Tab:AddLabel("微信 : not")
+Tab:AddLabel("邮箱:not")
+
+local Tab = Window:MakeTab({
+    Name = "bf",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddButton({
+    Name = "汉化bf脚本",
+    Callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ke9460394-dot/ugik/refs/heads/main/bf.txt"))()
+end})
+
+Tab:AddButton({
+    Name = "比较好用的(英文)",
+    Callback = function()
+ loadstring(game:HttpGet("https://link.trwxz.com/LS-Zee-Hub-VIP"))()
+end})
+
+local MusicTab = Window:MakeTab({
+    Name = "音乐",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+-- 当前播放的音乐对象
+local currentSound = nil
+local nowPlayingText = "无"
+
+-- 状态标签
+local statusLabel = MusicTab:AddLabel("当前状态: 未播放")
+
+-- 音乐ID输入框
+MusicTab:AddTextbox({
+    Name = "输入音乐ID",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Text)
+        -- 可以在这里存储输入值，但播放时再获取也可以
+    end  
+})
+
+local MusicTab = Window:MakeTab({
+    Name = "音乐",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+-- 当前播放的音乐对象
+local currentSound = nil
+local musicIdInput = nil  -- 存储输入框对象
+
+-- 创建输入框并存储引用
+musicIdInput = MusicTab:AddTextbox({
+    Name = "输入音乐ID",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Text)
+        -- 保存输入值
+    end  
+})
+
+-- 状态标签
+local statusLabel = MusicTab:AddLabel("当前状态: 未播放")
+
+-- 修复的音乐ID验证函数
+local function isValidMusicID(id)
+    -- 检查是否为纯数字且长度在6-10位之间
+    return id:match("^%d+$") and #id >= 6 and #id <= 10
+end
+
+-- 播放按钮
+MusicTab:AddButton({
+    Name = "播放音乐",
+    Callback = function()
+        -- 获取输入框的值
+        local musicId = musicIdInput.Value
+        
+        -- 清理非数字字符
+        musicId = musicId:gsub("%D+", "")
+        
+        -- 验证音乐ID
+        if not isValidMusicID(musicId) then
+            statusLabel:Set("状态: 请输入有效的音乐ID (6-10位数字)")
+            return
+        end
+        
+        -- 停止当前音乐
+        if currentSound then
+            currentSound:Stop()
+            currentSound:Destroy()
+            currentSound = nil
+        end
+        
+        -- 创建新音乐
+        currentSound = Instance.new("Sound")
+        currentSound.SoundId = "rbxassetid://" .. musicId
+        currentSound.Volume = 5
+        currentSound.Parent = game:GetService("SoundService")
+        
+        statusLabel:Set("状态: 加载中...")
+        
+        -- 处理加载完成
+        local connection
+        connection = currentSound.Loaded:Connect(function()
+            if currentSound and currentSound.IsLoaded then
+                connection:Disconnect()
+                currentSound:Play()
+                statusLabel:Set("状态: 正在播放 - " .. musicId)
+                
+                -- 播放结束时更新状态
+                currentSound.Ended:Connect(function()
+                    statusLabel:Set("状态: 播放完成 - " .. musicId)
+                    wait(2)
+                    statusLabel:Set("状态: 未播放")
+                end)
+            else
+                connection:Disconnect()
+                statusLabel:Set("状态: 加载失败! 请检查音乐ID")
+                if currentSound then
+                    currentSound:Destroy()
+                    currentSound = nil
+                end
+            end
+        end)
+        
+        -- 添加超时检测 (5秒)
+        spawn(function()
+            wait(5)
+            if currentSound and not currentSound.IsLoaded then
+                connection:Disconnect()
+                statusLabel:Set("状态: 加载超时! 请重试")
+                currentSound:Destroy()
+                currentSound = nil
+            end
+        end)
+    end
+})
+
+-- 停止按钮
+MusicTab:AddButton({
+    Name = "停止播放",
+    Callback = function()
+        if currentSound then
+            currentSound:Stop()
+            currentSound:Destroy()
+            currentSound = nil
+            statusLabel:Set("状态: 已停止")
+        else
+            statusLabel:Set("状态: 没有正在播放的音乐")
+        end
+    end
+})
+
+-- 音量控制
+local volume = 5
+MusicTab:AddSlider({
+    Name = "音量大小",
+    Min = 1,
+    Max = 10,
+    Default = 5,
+    Color = Color3.fromRGB(255,170,255),
+    Increment = 1,
+    ValueName = "音量",
+    Callback = function(Value)
+        volume = Value
+        if currentSound then
+            currentSound.Volume = volume
+        end
+    end    
+})
+
+-- 推荐音乐
+local recommendedSongs = {
+    {id = "4590654951", name = "流行音乐1"},
+    {id = "27697743", name = "背景音乐1"},
+    {id = "142376088", name = "电子音乐1"}
+}
+
+MusicTab:AddLabel("推荐音乐:")
+for _, song in ipairs(recommendedSongs) do
+    MusicTab:AddButton({
+        Name = song.name .. " (ID: " .. song.id .. ")",
+        Callback = function()
+            -- 设置输入框值为推荐ID
+            musicIdInput:Set(song.id)
+            
+            -- 自动播放
+            wait(0.1) -- 确保输入框更新
+            MusicTab.Buttons["播放音乐"]:Callback()
+        end
+    })
+end
+
+local Tab = Window:MakeTab({
+    Name = "通用功能",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddToggle({
+    Name = "大运(从情云拿的)",
+    Default = false,
+    Callback = function(Value)
+    if Value then
+        local Car = game:GetObjects("rbxassetid://78896584994504")[1]
+        Car.car.CanCollide = false
+        Car.Parent = workspace
+        spawn(function()
+            ToggleCar = game:GetService("RunService").RenderStepped:Connect(function()
+                Car.car:PivotTo(game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame * CFrame.new(1.3, 0, 1.6))
+            end)
+        end)
+    else
+        if ToggleCar then
+            ToggleCar:Disconnect()
+            Car:Destroy()
+        end
+    end
+end})
+
+Tab:AddButton({
+    Name = "IY指令 ( 中文版 )",
+    Callback = function()
+loadstring(game:HttpGet(utf8.char((function() return table.unpack({104,116,116,112,115,58,47,47,114,97,119,46,103,105,116,104,117,98,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109,47,87,97,110,103,122,104,101,104,97,111,104,47,102,108,121,45,97,119,97,121,47,109,97,105,110,47,37,69,54,37,56,67,37,56,55,37,69,52,37,66,66,37,56,65,37,69,52,37,66,56,37,65,68,37,69,54,37,57,54,37,56,55,46,116,120,116})end)())))()
+end})
+
+Tab:AddButton({
+    Name = "穿墙",
+    Callback = function()
+ pcall(function()
+        for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = not a
+            end
+        end
+    end)
+end})
+
+Tab:AddButton({
+    Name = "撸管R6",
+    Callback = function()
+loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))()
+end})
+
+Tab:AddButton({
+    Name = "撸管R15",
+    Callback = function()
+loadstring(game:HttpGet("https://pastefy.app/YZoglOyJ/raw"))()
+end})
+
+Tab:AddToggle({
+    Name = "夜视",
+    Default = false,
+    Callback = function(Value)
+    if Value then
+        game.Lighting.Ambient = Color3.new(1, 1, 1)
+    else
+        game.Lighting.Ambient = Color3.new(0, 0, 0)
+    end
+end})
+
+Tab:AddButton({
+    Name = "超高画质",
+    Callback = function()
+loadstring(game:HttpGet("https://pastebin.com/raw/jHBfJYmS"))()
+end})
+
+Tab:AddButton({
+    Name = "光影",
+    Default = false,
+    Callback = function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/MZEEN2424/Graphics/main/Graphics.xml"))()
+end})
+
+Tab:AddTextbox({
+    Name = "移动速度 ( 部分服务器没效果 )",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+end})
+
+Tab:AddTextbox({
+    Name = "跳跃高度 ( 部分服务器没效果 )",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+end})
+
+Tab:AddTextbox({
+    Name = "重力设置 ( 部分服务器没效果 )",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+game.Workspace.Gravity = Value
+end})
+
+Tab:AddButton({
+    Name = "无限跳跃",
+    Callback = function()
+    game:GetService("UserInputService").JumpRequest:connect(function()
+    game.Players.LocalPlayer.Character.Humanoid:ChangeState("Jumping")
+    end)
+end})
+
+local Tab = Window:MakeTab({
+    Name = "恶魔学",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+Tab:AddButton({
+    Name = "恶魔学脚本(冷风汉化)",
+    Callback = function()
+ loadstring(game:HttpGet('https://raw.githubusercontent.com/hxjsnsb3/csfz/main/恶魔学专业版汉化.txt'))()
+end})
+
+local Tab = Window:MakeTab({
+    Name = "gb",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddButton({
+    Name = "不知名脚本👁️",
+    Callback = function()
+ loadstring(game:HttpGet("https://raw.githubusercontent.com/ChinaQY/Scripts/Main/GB"))()
+end})
+
+Tab:AddButton({
+    Name = "清风",
+    Callback = function()
+ loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\40\34\104\116\116\112\115\58\47\47\102\114\101\101\110\111\116\101\46\98\105\122\47\114\97\119\47\109\117\122\110\104\101\114\104\114\117\34\41\44\116\114\117\101\41\41\40\41\10")()
+end})
+
+local Tab = Window:MakeTab({
+    Name = "Doors",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddButton({
+    Name = "汉化脚本",
+    Callback = function()
+ loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\112\97\115\116\101\98\105\110\46\99\111\109\47\114\97\119\47\54\53\84\119\84\56\106\97"))()
+end})
+
+local Tab = Window:MakeTab({
+    Name = "最强战场",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddButton({
+    Name = "1v1专用",
+    Callback = function()
+ loadstring(game:HttpGet("https://pastefy.app/HxjXAU2d/raw"))()
+end})
+
+Tab:AddButton({
+    Name = "功能比较强大(应该)",
+    Callback = function()
+ loadstring(game:HttpGet("https://pastebin.com/raw/L7WEmRth"))()
+end})
+
+Tab:AddButton({
+    Name = "自动格挡",
+    Callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Cyborg883/TSB/refs/heads/main/CombatGui"))()
+end})
+
+Tab:AddButton({
+    Name = "自瞄 ( 头部 )",
+    Callback = function()
+getgenv().Camlock_Settings = {
+    Prediction = 0,
+    AimPart = "Head",
+    AutoPrediction = false,
+    Notification = true,
+    Button = true,
+    AntiGroundShots = false,
+    UnderGroundResolver = false,
+    Version = "2.5.1",
+    Credits = "space_0999",
+    DiscordServer = "discord.gg/SKhamGzTdn"
+}
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/elxocasXD/Trip-Hub/main/Scripts/Cam%20Lock.lua"))()
+end})
+
+Tab:AddButton({
+    Name = "自瞄 ( 身体 )",
+    Callback = function()
+getgenv().Camlock_Settings = {
+    Prediction = 0,
+    AimPart = "HumanoidRootPart",
+    AutoPrediction = false,
+    Notification = true,
+    Button = true,
+    AntiGroundShots = false,
+    UnderGroundResolver = false,
+    Version = "2.5.1",
+    Credits = "space_0999",
+    DiscordServer = "discord.gg/SKhamGzTdn"
+}
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/elxocasXD/Trip-Hub/main/Scripts/Cam%20Lock.lua"))()
+end})
+
+Tab:AddButton({
+    Name = "垃圾桶战神",
+    Callback = function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yes1nt/yes/main/Trashcan%20Man"))()
+end})
+
+Tab:AddButton({
+    Name = "动作集 ( 别人可以看见 )",
+    Callback = function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Mautiku/ehh/main/strong%20guest.lua.txt"))()
+end})
+
+Tab:AddButton({
+    Name = "卡UI了无法滑动 ? 点我",
+    Callback = function()
+game:GetService("CoreGui")["Discord"]:Destroy()
+end})
+
+local Tab = Window:MakeTab({
+    Name = "被遗弃",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddButton({
+    Name = "情云",
+    Callback = function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ChinaQY/Scripts/Main/Forsaken"))()
+end})
+
+Tab:AddButton({
+    Name = "AppleStuff",
+    Callback = function()
+loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/SilkScripts/AppleStuff/main/AppleFSKV2")))()
+end})
+
+Tab:AddButton({
+    Name = "FartHub",
+    Callback = function()
+loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/ivannetta/ShitScripts/main/forsaken.lua")))()
+end})
+
+local Tab = Window:MakeTab({
+    Name = "脚本中心",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddButton({
+    Name = "脚本中心",
+    Callback = function()
+loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\112\97\115\116\101\98\105\110\46\99\111\109\47\114\97\119\47\103\101\109\120\72\119\65\49"))()
+end})
+
+Tab:AddButton({
+    Name = "好脚本",
+    Callback = function()
+ loadstring(game:HttpGet("https://pastebin.com/raw/1k7RAfQJ"))()
+end})
+
+Tab:AddButton({
+    Name = "青脚本",
+    Callback = function()
+ loadstring(game:HttpGet('https://rentry.co/cyq78/raw'))()
+end})
+Tab:AddButton({
+    Name = ".皇脚本",
+    Callback = function()
+ loadstring(game:HttpGet("\104\116\116\112\115\58\47\47\112\97\115\116\101\98\105\110\46\99\111\109\47\114\97\119\47\80\100\84\55\99\65\82\84"))()
+end})
+
+Tab:AddButton({
+    Name = "XSC(卡密是小写的a)",
+    Callback = function()
+getgenv().XC="作者XC"loadstring(game:HttpGet("https://pastebin.com/raw/PAFzYx0F"))()
+end})
+
+Tab:AddButton({
+    Name = "XK脚本中心",
+    Callback = function()
+loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\34\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\66\73\78\106\105\97\111\98\122\120\54\47\66\73\78\106\105\97\111\47\109\97\105\110\47\88\75\46\84\88\84\34\41\41\40\41\10")()
+end})
+
+Tab:AddButton({
+    Name = "北极",
+    Callback = function()
+ loadstring(game:HttpGet("https://pastebin.com/raw/KwARpDxV",true))()
+end})
+
+Tab:AddButton({
+    Name = "导管中心",
+    Callback = function()
+ loadstring("\108\111\97\100\115\116\114\105\110\103\40\103\97\109\101\58\72\116\116\112\71\101\116\40\34\104\116\116\112\115\58\47\47\114\97\119\46\103\105\116\104\117\98\117\115\101\114\99\111\110\116\101\110\116\46\99\111\109\47\117\115\101\114\97\110\101\119\114\102\102\47\114\111\98\108\111\120\45\47\109\97\105\110\47\37\69\54\37\57\68\37\65\49\37\69\54\37\65\67\37\66\69\37\69\53\37\56\68\37\56\70\37\69\56\37\65\69\37\65\69\34\41\41\40\41\10")()
+end})
+
+local Tab = Window:MakeTab({
+    Name = "其他",
+    Icon = "rbxassetid://88764882369057",
+    PremiumOnly = false
+})
+
+Tab:AddButton({
+    Name = "给自己踢了",
+    Callback = function()
+ game.Players.LocalPlayer:Kick("没想到真有人给自己踢了👁️")
+end})
+
+OrionLib:Init()
+end
